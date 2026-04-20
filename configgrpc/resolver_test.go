@@ -22,6 +22,8 @@ func TestResolverSchemeValidate(t *testing.T) {
 		{name: "ipv4", scheme: ResolverSchemeIPv4, wantErr: false},
 		{name: "ipv6", scheme: ResolverSchemeIPv6, wantErr: false},
 		{name: "invalid", scheme: "xds", wantErr: true},
+		// xds is not supported; only dns, passthrough, ipv4, ipv6 are allowed
+		{name: "invalid unix", scheme: "unix", wantErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -47,6 +49,8 @@ func TestResolverSchemeApplyToEndpoint(t *testing.T) {
 		{name: "dns scheme applied", scheme: ResolverSchemeDNS, endpoint: "localhost:4317", want: "dns:///localhost:4317"},
 		{name: "passthrough scheme applied", scheme: ResolverSchemePassthrough, endpoint: "localhost:4317", want: "passthrough:///localhost:4317"},
 		{name: "already has scheme", scheme: ResolverSchemeDNS, endpoint: "dns:///localhost:4317", want: "dns:///localhost:4317"},
+		// Verify ipv4 scheme is correctly prefixed as well
+		{name: "ipv4 scheme applied", scheme: ResolverSchemeIPv4, endpoint: "127.0.0.1:4317", want: "ipv4:///127.0.0.1:4317"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
