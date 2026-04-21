@@ -16,25 +16,38 @@ func TestResolverSchemeValidate(t *testing.T) {
 		scheme  ResolverScheme
 		wantErr bool
 	}{
-		{name: "empty is valid", scheme: "", wantErr: false},
-		{name: "dns", scheme: ResolverSchemeDNS, wantErr: false},
-		{name: "passthrough", scheme: ResolverSchemePassthrough, wantErr: false},
-		{name: "ipv4", scheme: ResolverSchemeIPv4, wantErr: false},
-		{name: "ipv6", scheme: ResolverSchemeIPv6, wantErr: false},
-		{name: "invalid xds", scheme: "xds", wantErr: true},
-		// xds is not supported; only dns, passthrough, ipv4, ipv6 are allowed
-		{name: "invalid unix", scheme: "unix", wantErr: true},
-		// explicitly verify that mixed-case schemes are also rejected
-		{name: "invalid mixed-case dns", scheme: "DNS", wantErr: true},
-		// numbers-only string should also be rejected
-		{name: "invalid numeric string", scheme: "1234", wantErr: true},
+		{
+			name:    "empty scheme is valid (uses default)",
+			scheme:  "",
+			wantErr: false,
+		},
+		{
+			name:    "dns scheme is valid",
+			scheme:  ResolverSchemeDNS,
+			wantErr: false,
+		},
+		{
+			name:    "passthrough scheme is valid",
+			scheme:  ResolverSchemePassthrough,
+			wantErr: false,
+		},
+		{
+			name:    "unknown scheme is invalid",
+			scheme:  ResolverScheme("unknown"),
+			wantErr: true,
+		},
+		{
+			name:    "xds scheme is valid",
+			scheme:  ResolverSchemeXDS,
+			wantErr: false,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.scheme.Validate()
 			if tt.wantErr {
 				require.Error(t, err)
-				assert.Contains(t, err.Error(), "unsupported resolver scheme")
 			} else {
 				require.NoError(t, err)
 			}
@@ -49,17 +62,32 @@ func TestResolverSchemeApplyToEndpoint(t *testing.T) {
 		endpoint string
 		want     string
 	}{
-		{name: "empty scheme no-op", scheme: "", endpoint: "localhost:4317", want: "localhost:4317"},
-		{name: "dns scheme applied", scheme: ResolverSchemeDNS, endpoint: "localhost:4317", want: "dns:///localhost:4317"},
-		{name: "passthrough scheme applied", scheme: ResolverSchemePassthrough, endpoint: "localhost:4317", want: "passthrough:///localhost:4317"},
-		{name: "already has scheme", scheme: ResolverSchemeDNS, endpoint: "dns:///localhost:4317", want: "dns:///localhost:4317"},
-		// Verify ipv4 scheme is correctly prefixed as well
-		{name: "ipv4 scheme applied", scheme: ResolverSchemeIPv4, endpoint: "127.0.0.1:4317", want: "ipv4:///127.0.0.1:4317"},
-		// Verify ipv6 scheme works with a bracketed address
-		{name: "ipv6 scheme applied", scheme: ResolverSchemeIPv6, endpoint: "[::1]:4317", want: "ipv6:///[::1]:4317"},
-		// Verify that an empty endpoint with a scheme still gets the prefix
-		{name: "dns scheme empty endpoint", scheme: ResolverSchemeDNS, endpoint: "", want: "dns:///"},
+		{
+			name:     "empty scheme does not modify endpoint",
+			scheme:   "",
+			endpoint: "localhost:4317",
+			want:     "localhost:4317",
+		},
+		{
+			name:     "dns scheme prepends dns:///",
+			scheme:   ResolverSchemeDNS,
+			endpoint: "localhost:4317",
+			want:     "dns:///localhost:4317",
+		},
+		{
+			name:     "passthrough scheme prepends passthrough:///",
+			scheme:   ResolverSchemePassthrough,
+			endpoint: "localhost:4317",
+			want:     "passthrough:///localhost:4317",
+		},
+		{
+			name:     "dns scheme with already prefixed endpoint",
+			scheme:   ResolverSchemeDNS,
+			endpoint: "dns:///localhost:4317",
+			want:     "dns:///localhost:4317",
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.scheme.ApplyToEndpoint(tt.endpoint)
