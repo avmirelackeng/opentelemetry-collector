@@ -21,11 +21,13 @@ func TestResolverSchemeValidate(t *testing.T) {
 		{name: "passthrough", scheme: ResolverSchemePassthrough, wantErr: false},
 		{name: "ipv4", scheme: ResolverSchemeIPv4, wantErr: false},
 		{name: "ipv6", scheme: ResolverSchemeIPv6, wantErr: false},
-		{name: "invalid", scheme: "xds", wantErr: true},
+		{name: "invalid xds", scheme: "xds", wantErr: true},
 		// xds is not supported; only dns, passthrough, ipv4, ipv6 are allowed
 		{name: "invalid unix", scheme: "unix", wantErr: true},
 		// explicitly verify that mixed-case schemes are also rejected
 		{name: "invalid mixed-case dns", scheme: "DNS", wantErr: true},
+		// numbers-only string should also be rejected
+		{name: "invalid numeric string", scheme: "1234", wantErr: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -55,6 +57,8 @@ func TestResolverSchemeApplyToEndpoint(t *testing.T) {
 		{name: "ipv4 scheme applied", scheme: ResolverSchemeIPv4, endpoint: "127.0.0.1:4317", want: "ipv4:///127.0.0.1:4317"},
 		// Verify ipv6 scheme works with a bracketed address
 		{name: "ipv6 scheme applied", scheme: ResolverSchemeIPv6, endpoint: "[::1]:4317", want: "ipv6:///[::1]:4317"},
+		// Verify that an empty endpoint with a scheme still gets the prefix
+		{name: "dns scheme empty endpoint", scheme: ResolverSchemeDNS, endpoint: "", want: "dns:///"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
