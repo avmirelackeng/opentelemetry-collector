@@ -24,6 +24,10 @@
 //
 //   - "ipv6": Resolves the address as an IPv6 address directly.
 //
+// Note: In most Kubernetes environments, "dns" with round_robin balancing
+// works well for headless services. For non-headless services, prefer
+// "passthrough" since the cluster DNS already handles load balancing.
+//
 // Example configuration (YAML):
 //
 //	 exporters:
