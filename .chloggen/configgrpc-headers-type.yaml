@@ -1,0 +1,20 @@
+# One of 'breaking', 'deprecation', 'new_component', 'enhancement', 'bug_fix'
+change_type: enhancement
+
+# The name of the component, e.g. receiver/prometheus
+component: configgrpc
+
+# A brief description of the change. Surpasses the title for long entries.
+note: Add strongly-typed Headers map with validation for gRPC metadata header keys
+
+# One or more tracking issues related to the change
+issues: []
+
+# (Optional) One or more lines of additional information to render under the primary note.
+# These lines will be padded with 2 spaces and then inserted directly into the changelog.
+# Use pipe (|) for multiline entries.
+subtext: |
+  Introduces a new `Headers` type (map[string]HeaderValue) for gRPC metadata
+  configuration. Header keys are validated to contain only lowercase ASCII
+  letters, digits, hyphens, underscores, and dots, consistent with the gRPC
+  and HTTP/2 metadata specifications.
