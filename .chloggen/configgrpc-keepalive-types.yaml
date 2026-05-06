@@ -1,0 +1,20 @@
+# One of 'breaking', 'deprecation', 'new_component', 'enhancement', 'bug_fix'
+change_type: enhancement
+
+# The name of the component, e.g. receiver/prometheus, receiver/otlp
+component: configgrpc
+
+# A brief description of the change. Surpassing the 80-character limit is allowed.
+note: Add KeepaliveClientParameters and KeepaliveServerParameters types with validation
+
+# Mandatory: One or more tracking issues related to the change. You can use the PR number here if no issue exists.
+issues: []
+
+# (Optional) One or more lines of additional information to render under the primary note.
+# These lines will be padded with 2 spaces and then inserted directly into the changelog.
+# Use pipe (|) for multiline entries.
+additional_details: |
+  Introduces strongly-typed KeepaliveClientParameters and KeepaliveServerParameters
+  structs for configuring gRPC keepalive behavior on both client and server sides.
+  Both types include a Validate() method to ensure configuration values are
+  non-negative, consistent with other configgrpc types.
