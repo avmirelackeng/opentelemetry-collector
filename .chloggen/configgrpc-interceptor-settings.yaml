@@ -1,0 +1,18 @@
+# One of 'breaking', 'deprecation', 'new_component', 'enhancement', 'bug_fix'
+change_type: enhancement
+
+# The name of the component or a short description of the changed area
+component: configgrpc
+
+# A brief description of the change. Surround your text with quotes ("...") if it contains special characters.
+note: "Add InterceptorSettings type to configgrpc for configuring unary and stream gRPC interceptors"
+
+# One or more tracking issues related to the change
+issues: []
+
+# (Optional) One or more lines of additional information to render under the primary note.
+# These lines will be padded with 2 spaces and then inserted directly into the changelog.
+# Use pipe (|) for multiline entries.
+additional_details: |
+  Introduces InterceptorSettings with Type (unary/stream) and Enabled fields,
+  along with validation, defaults, and helper methods IsUnary/IsStream.
