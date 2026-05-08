@@ -1,0 +1,19 @@
+# One of 'breaking', 'deprecation', 'new_component', 'enhancement', 'bug_fix'
+change_type: enhancement
+
+# The name of the component, e.g. receiver/prometheus, cmd/otelcorecol
+component: configgrpc
+
+# A brief description of the change. Surround your text with quotes ("...") if it contains special characters.
+note: "Add Metadata type for gRPC metadata key-value pairs with validation and conversion to grpc/metadata.MD"
+
+# One or more tracking issues related to the change
+issues: []
+
+# (Optional) One or more lines of additional information to render under the primary note.
+# These lines will be padded with 2 spaces and then inserted directly into the changelog.
+# Use pipe (|) for multiline entries.
+additional_details: |
+  Introduces configgrpc.Metadata, a typed map for gRPC metadata with:
+  - Key validation (printable ASCII, no colon or comma)
+  - Case-insensitive conversion to google.golang.org/grpc/metadata.MD
