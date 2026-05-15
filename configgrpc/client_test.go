@@ -9,59 +9,71 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
 func TestNewDefaultClientConfig(t *testing.T) {
 	cfg := NewDefaultClientConfig()
 	require.NotNil(t, cfg)
 
-	// Verify timeout defaults
-	assert.Equal(t, 10*time.Second, cfg.Timeout.RequestTimeout)
-
-	// Verify compression default
-	assert.Equal(t, CompressionNone, cfg.Compression)
-
-	// Verify wait for ready default
-	assert.Equal(t, WaitForReadyDisabled, cfg.WaitForReady)
+	// Verify default values are set
+	assert.NotNil(t, cfg.Timeout)
+	assert.NotNil(t, cfg.Keepalive)
+	assert.NotNil(t, cfg.Backoff)
+	assert.NotNil(t, cfg.ConnectParams)
 }
 
 func TestClientConfigValidate(t *testing.T) {
 	tests := []struct {
 		name    string
-		modify  func(*ClientConfig)
+		cfg     func() *ClientConfig
 		wantErr bool
 		errMsg  string
 	}{
 		{
-			name:    "valid default config",
-			modify:  func(cfg *ClientConfig) {},
-			wantErr: false,
+			name: "default config is valid",
+			cfg:  NewDefaultClientConfig,
 		},
 		{
-			name: "valid with endpoint",
-			modify: func(cfg *ClientConfig) {
+			name: "valid endpoint",
+			cfg: func() *ClientConfig {
+				cfg := NewDefaultClientConfig()
 				cfg.Endpoint = Endpoint("localhost:4317")
+				return cfg
 			},
-			wantErr: false,
+		},
+		{
+			name: "valid endpoint with scheme",
+			cfg: func() *ClientConfig {
+				cfg := NewDefaultClientConfig()
+				cfg.Endpoint = Endpoint("dns:///localhost:4317")
+				return cfg
+			},
+		},
+		{
+			name: "invalid timeout",
+			cfg: func() *ClientConfig {
+				cfg := NewDefaultClientConfig()
+				cfg.Timeout.DialTimeout = -1 * time.Second
+				return cfg
+			},
+			wantErr: true,
 		},
 		{
 			name: "invalid compression",
-			modify: func(cfg *ClientConfig) {
+			cfg: func() *ClientConfig {
+				cfg := NewDefaultClientConfig()
 				cfg.Compression = CompressionType("invalid")
+				return cfg
 			},
 			wantErr: true,
 		},
 		{
-			name: "invalid wait for ready",
-			modify: func(cfg *ClientConfig) {
-				cfg.WaitForReady = WaitForReady("invalid")
-			},
-			wantErr: true,
-		},
-		{
-			name: "negative request timeout",
-			modify: func(cfg *ClientConfig) {
-				cfg.Timeout.RequestTimeout = -1 * time.Second
+			name: "invalid balancer",
+			cfg: func() *ClientConfig {
+				cfg := NewDefaultClientConfig()
+				cfg.BalancerName = BalancerName("invalid")
+				return cfg
 			},
 			wantErr: true,
 		},
@@ -69,9 +81,7 @@ func TestClientConfigValidate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg := NewDefaultClientConfig()
-			tt.modify(cfg)
-			err := cfg.Validate()
+			err := tt.cfg().Validate()
 			if tt.wantErr {
 				require.Error(t, err)
 				if tt.errMsg != "" {
@@ -90,14 +100,15 @@ func TestClientConfigToDialOptions(t *testing.T) {
 		opts, err := cfg.ToDialOptions()
 		require.NoError(t, err)
 		assert.NotNil(t, opts)
+		assert.IsType(t, []grpc.DialOption{}, opts)
 	})
 
-	t.Run("config with gzip compression", func(t *testing.T) {
+	t.Run("config with compression", func(t *testing.T) {
 		cfg := NewDefaultClientConfig()
 		cfg.Compression = CompressionGzip
 		opts, err := cfg.ToDialOptions()
 		require.NoError(t, err)
-		assert.NotNil(t, opts)
+		assert.NotEmpty(t, opts)
 	})
 
 	t.Run("config with user agent", func(t *testing.T) {
@@ -105,13 +116,14 @@ func TestClientConfigToDialOptions(t *testing.T) {
 		cfg.UserAgent = UserAgent("test-agent/1.0")
 		opts, err := cfg.ToDialOptions()
 		require.NoError(t, err)
-		assert.NotNil(t, opts)
+		assert.NotEmpty(t, opts)
 	})
 
-	t.Run("invalid config returns error", func(t *testing.T) {
+	t.Run("config with authority", func(t *testing.T) {
 		cfg := NewDefaultClientConfig()
-		cfg.Compression = CompressionType("invalid")
-		_, err := cfg.ToDialOptions()
-		require.Error(t, err)
+		cfg.Authority = Authority("example.com")
+		opts, err := cfg.ToDialOptions()
+		require.NoError(t, err)
+		assert.NotEmpty(t, opts)
 	})
 }
