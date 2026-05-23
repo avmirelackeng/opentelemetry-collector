@@ -1,0 +1,19 @@
+# One of 'breaking', 'deprecation', 'new_component', 'enhancement', 'bug_fix'
+change_type: enhancement
+
+# The name of the component
+component: configgrpc
+
+# A brief description of the change. Surpasses the title for the changelog entry.
+note: Add KeepaliveBackoffConfig type for controlling gRPC keepalive reconnection backoff strategy.
+
+# One or more tracking issues related to the change
+issues: []
+
+# (Optional) One or more lines of additional information to render under the primary note.
+# These lines will be padded with 2 spaces and then inserted directly into the changelog.
+# Use pipe (|) for multiline entries.
+subtext: |
+  Introduces KeepaliveBackoffConfig with BaseDelay, Multiplier, Jitter, and MaxDelay fields
+  that map directly to keepalive.BackoffConfig from the gRPC library. Includes validation
+  and a ToBackoffConfig() conversion helper.
