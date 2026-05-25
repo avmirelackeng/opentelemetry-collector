@@ -1,0 +1,18 @@
+# One of 'breaking', 'deprecation', 'new_component', 'enhancement', 'bug_fix'
+change_type: enhancement
+
+# The name of the component or components affected.
+component: configgrpc
+
+# A brief description of the change. Surround your text with quotes ("...") if it contains special characters.
+note: "Add NumStreamsSettings to configure maximum concurrent streams per gRPC connection"
+
+# One or more tracking issues related to the change
+issues: []
+
+# (Optional) One or more lines of additional information to render under the primary note.
+# These lines will be padded with 2 spaces and then inserted directly into the changelog.
+# Use pipe (|) for multiline entries.
+additional_details: |
+  NumStreamsSettings allows configuring the maximum number of concurrent streams
+  per connection for both gRPC clients and servers via MaxStreamsPerConn field.
