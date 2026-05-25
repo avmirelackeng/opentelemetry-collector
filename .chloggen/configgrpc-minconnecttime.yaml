@@ -1,0 +1,18 @@
+# One of 'breaking', 'deprecation', 'new_component', 'enhancement', 'bug_fix'
+change_type: enhancement
+
+# The name of the component, e.g. receiver/prometheus, exporter/elasticsearch
+component: configgrpc
+
+# A brief description of the change. Surpassed 80 chars will be wrapped.
+note: Add MinConnectTimeSettings to control minimum connection attempt timeout for gRPC clients.
+
+# One or more tracking issues related to the change
+issues: []
+
+# (Optional) One or more lines of additional information to render under the primary note.
+# These lines will be padded with 2 spaces and then inserted directly into the changelog.
+# Use pipe (|) for multiline entries.
+subtext: |
+  MinConnectTimeSettings provides a typed configuration for controlling
+  the minimum time a gRPC connection attempt is given to complete.
