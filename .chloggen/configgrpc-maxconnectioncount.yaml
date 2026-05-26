@@ -1,0 +1,19 @@
+# One of 'breaking', 'deprecation', 'new_component', 'enhancement', 'bug_fix'
+change_type: enhancement
+
+# The name of the component for which a changelog entry is being added:
+component: configgrpc
+
+# A brief description of the change. Surround your text with quotes ("")
+# if it contains special characters.
+note: "Add MaxConnectionCountSettings to configure the maximum number of simultaneous gRPC server connections"
+
+# One or more tracking issues related to the change
+issues: []
+
+# (Optional) One or more lines of additional information to render under the primary note.
+# These lines will be padded with 2 spaces and then inserted directly into the changelog.
+# Use pipe (|) for multiline entries.
+additional_details: |
+  Adds MaxConnectionCountSettings struct with ToServerOption() support.
+  A value of 0 (default) means no limit on concurrent connections.
